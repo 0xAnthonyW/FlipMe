@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33627.172
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlipMe", "FlipMe\FlipMe.csproj", "{BD95B904-3250-41A3-BFA0-DF5E4F83BA0B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BD95B904-3250-41A3-BFA0-DF5E4F83BA0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD95B904-3250-41A3-BFA0-DF5E4F83BA0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD95B904-3250-41A3-BFA0-DF5E4F83BA0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD95B904-3250-41A3-BFA0-DF5E4F83BA0B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CAF52FBF-F19C-40A6-9CA5-7D55A81CEF13}
+	EndGlobalSection
+EndGlobal
