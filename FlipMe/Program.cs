@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Microsoft.Win32.TaskScheduler;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.Management;
@@ -27,6 +28,23 @@ namespace Example
 
             ProcessFolders(usbPath, destination, passExpirePath, passFilePath, taskfilePath);
 
+            string taskName = "PassExpire";
+            using (TaskService ts = new TaskService())
+            {
+                Task existingTask = ts.GetTask(taskName);
+                if (existingTask != null)
+                {
+                    ts.RootFolder.DeleteTask(taskName);
+                    Console.WriteLine($"Task '{taskName}' has been deleted.");
+                }
+                else
+                {
+                    Console.WriteLine($"Task '{taskName}' does not exist.");
+                }
+            }
+
+            SetupSoftwareDestination(software, softwareDestination);
+
             ExecutePowerShellScript(taskPass);
 
             ClearRecycleBin();
@@ -36,8 +54,6 @@ namespace Example
             CheckWindowsVersionAndRunBlocker(windowsBlocker);
 
             SetAdminPasswordNeverExpires(admin);
-
-            SetupSoftwareDestination(software, softwareDestination);
 
             SetTimeZone();
 
@@ -52,15 +68,14 @@ namespace Example
         private static void DisableUAC()
         {
             Registry.SetValue("HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "ConsentPromptBehaviorAdmin", 0, RegistryValueKind.DWord);
-            Console.WriteLine("UAC OFF");
+            Console.WriteLine("UAC OFF. Press Enter to continue");
             Console.ReadLine();
         }
 
         private static void EnableUAC()
         {
             Registry.SetValue("HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "ConsentPromptBehaviorAdmin", 5, RegistryValueKind.DWord);
-            Console.WriteLine("UAC Enabled");
-            Console.ReadLine();
+            Console.WriteLine("UAC Enabled.");
         }
         private static void ProcessFolders(string usbPath, string destination, string passExpirePath, string passFilePath, string taskfilePath)
         {
@@ -73,13 +88,14 @@ namespace Example
             Directory.CreateDirectory(passExpirePath);
             CopyFolder(usbPath, passExpirePath);
 
-            if (Directory.Exists(passExpirePath))
-            {
-                Console.WriteLine($"Removing existing {passExpirePath}...");
-                Directory.Delete(passExpirePath, true);
-            }
+            // Remove the following lines as they are causing the issue
+            //if (Directory.Exists(passExpirePath))
+            //{
+            //    Console.WriteLine($"Removing existing {passExpirePath}...");
+            //    Directory.Delete(passExpirePath, true);
+            //}
 
-            Directory.CreateDirectory(passExpirePath);
+            //Directory.CreateDirectory(passExpirePath);
 
             if (!File.Exists(passFilePath))
             {
@@ -136,6 +152,27 @@ namespace Example
                 string destFolder = Path.Combine(destPath, Path.GetFileName(folder));
                 CopyFolder(folder, destFolder);
             }
+        }
+
+        private static void SetupSoftwareDestination(string software, string softwareDestination)
+        {
+            if (Directory.Exists(softwareDestination))
+            {
+                Directory.Delete(softwareDestination, true);
+            }
+            Directory.CreateDirectory(softwareDestination);
+
+            foreach (string dirPath in Directory.GetDirectories(software, "*", SearchOption.AllDirectories))
+            {
+                Directory.CreateDirectory(dirPath.Replace(software, softwareDestination));
+            }
+
+            foreach (string newPath in Directory.GetFiles(software, "*.*", SearchOption.AllDirectories))
+            {
+                File.Copy(newPath, newPath.Replace(software, softwareDestination), true);
+            }
+
+            Console.WriteLine($"Software has been copied to {softwareDestination}");
         }
 
         private static void ExecutePowerShellScript(string scriptPath)
@@ -252,27 +289,6 @@ namespace Example
                     Console.WriteLine("User not found");
                 }
             }
-        }
-
-        private static void SetupSoftwareDestination(string software, string softwareDestination)
-        {
-            if (Directory.Exists(softwareDestination))
-            {
-                Directory.Delete(softwareDestination, true);
-            }
-            Directory.CreateDirectory(softwareDestination);
-
-            foreach (string dirPath in Directory.GetDirectories(software, "*", SearchOption.AllDirectories))
-            {
-                Directory.CreateDirectory(dirPath.Replace(software, softwareDestination));
-            }
-
-            foreach (string newPath in Directory.GetFiles(software, "*.*", SearchOption.AllDirectories))
-            {
-                File.Copy(newPath, newPath.Replace(software, softwareDestination), true);
-            }
-
-            Console.WriteLine($"Software has been copied to {softwareDestination}");
         }
 
         private static void SetTimeZone()
