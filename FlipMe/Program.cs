@@ -1,9 +1,9 @@
 ﻿using Microsoft.Win32;
-using Microsoft.Win32.TaskScheduler;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.Management;
 using System.Runtime.InteropServices;
+using TaskScheduler = Microsoft.Win32.TaskScheduler;
 
 
 namespace Example
@@ -29,9 +29,9 @@ namespace Example
             ProcessFolders(usbPath, destination, passExpirePath, passFilePath, taskfilePath);
 
             string taskName = "PassExpire";
-            using (TaskService ts = new TaskService())
+            using (TaskScheduler.TaskService ts = new TaskScheduler.TaskService())
             {
-                Task existingTask = ts.GetTask(taskName);
+                TaskScheduler.Task existingTask = ts.GetTask(taskName);
                 if (existingTask != null)
                 {
                     ts.RootFolder.DeleteTask(taskName);
